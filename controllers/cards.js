@@ -22,7 +22,11 @@ module.exports.createCard = (req, res) => {
 };
 
 module.exports.deleteCard = (req, res) => {
-  Card.findByIdAndRemove(req.params.cardId)
+  Card.findByIdAndRemove(req.params.cardId).orFail(() => {
+    const error = new Error('Карточка с указанным _id не найдена');
+    error.statusCode = 404;
+    throw error;
+  })
     .then((card) => res.send(card))
     .catch((err) => {
       if (err.statusCode === 404) {
