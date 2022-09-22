@@ -3,17 +3,17 @@ const { INPUT_ERROR, NOT_FOUND_ERROR, DEFAULT_ERROR } = require('../utils/const'
 
 module.exports.getUser = (req, res) => {
   User.findById(req.params.userId)
-    .then((user) => {
-      if (!user) {
-        console.log('Пользователя тю-тю');
-      }
-      return res.send(user);
+    .orFail(() => {
+      const error = new Error('Пользователь не найден');
+      error.statusCode = 404;
+      throw error;
     })
+    .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.statusCode === 404) {
         res.status(NOT_FOUND_ERROR).send({ message: err.message });
       } else if (err.name === 'CastError') {
-        res.status(INPUT_ERROR).send({ message: 'некорректный _id профиля' });
+        res.status(INPUT_ERROR).send({ message: 'Переданы некорректный _id пользователя' });
       } else res.status(DEFAULT_ERROR).send({ message: 'Ошибка сервера' });
     });
 };
@@ -21,7 +21,9 @@ module.exports.getUser = (req, res) => {
 module.exports.getUsers = (req, res) => {
   User.find({})
     .then((users) => res.send(users))
-    .catch((err) => err.status);
+    .catch(() => {
+      res.status(DEFAULT_ERROR).send({ message: 'Ошибка сервера' });
+    });
 };
 module.exports.postUsers = (req, res) => {
   const { name, about, avatar } = req.body;
