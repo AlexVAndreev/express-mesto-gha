@@ -40,7 +40,10 @@ module.exports.postUsers = (req, res) => {
 module.exports.updateProfile = (req, res) => {
   const { name, about } = req.body;
 
-  User.findByIdAndUpdate(req.user._id, { name, about })
+  User.findByIdAndUpdate(req.user._id, { name, about }, {
+    new: true,
+    runValidators: true,
+  })
     .orFail(() => {
       const error = new Error('Пользователь не найден');
       error.statusCode = 404;
