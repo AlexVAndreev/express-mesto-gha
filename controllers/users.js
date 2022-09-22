@@ -16,15 +16,15 @@ module.exports.getUsers = (req, res, next) => {
     .then((users) => res.send(users))
     .catch(next);
 };
-module.exports.postUsers = (req, res) => {
+module.exports.postUsers = (req, res, next) => {
   const { name, about, avatar } = req.body;
   User.create({ name, about, avatar })
   // вернём записанные в базу данные
     .then((user) => res.send({ data: user }))
   // данные не записались, вернём ошибку
-    .catch((err) => res.status(500).send({ message: `Произошла ошибка ${err.message}` }));
+    .catch(next);
 };
-module.exports.updateProfile = (req, res) => {
+module.exports.updateProfile = (req, res, next) => {
   const { name, about } = req.body;
 
   User.findByIdAndUpdate(req.user._id, { name, about })
@@ -34,10 +34,10 @@ module.exports.updateProfile = (req, res) => {
       name,
       about,
     }))
-    .catch(console.log('pew pew trouble updateProfile'));
+    .catch(next);
 };
 
-module.exports.updateAvatar = (req, res) => {
+module.exports.updateAvatar = (req, res, next) => {
   const { avatar } = req.body;
 
   User.findByIdAndUpdate(req.user._id, { avatar })
@@ -47,5 +47,5 @@ module.exports.updateAvatar = (req, res) => {
       name: user.name,
       about: user.about,
     }))
-    .catch(console.log('pew pew trouble updateAvatar'));
+    .catch(next);
 };
