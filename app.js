@@ -8,6 +8,12 @@ const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+mongoose.connect('mongodb://127.0.0.1:27017/mestodb', {
+  useUnifiedTopology: true,
+  useNewUrlParser: true,
+  autoIndex: true,
+});
+
 app.use((req, res, next) => {
   req.user = {
     _id: '632c1affe6cd5f768837bde5', // вставьте сюда _id созданного в предыдущем пункте пользователя
@@ -24,10 +30,4 @@ app.use('*', (req, res) => {
 });
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);
-});
-
-mongoose.connect('mongodb://127.0.0.1:27017/mestodb', {
-  useUnifiedTopology: true,
-  useNewUrlParser: true,
-  autoIndex: true,
 });
