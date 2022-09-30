@@ -1,8 +1,11 @@
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const { INPUT_ERROR, NOT_FOUND_ERROR, DEFAULT_ERROR } = require('../utils/const');
 // const NotFoundError = require('../errors/NotFoundError');
 const UserCreateError = require('../errors/UserCreateError');
+
+const { JWT_SECRET = 'JWT_SECRET' } = process.env;
 
 module.exports.getUser = (req, res) => {
   User.findById(req.params.userId)
@@ -101,4 +104,19 @@ module.exports.updateAvatar = (req, res) => {
         res.status(INPUT_ERROR).send({ message: 'некорректные данные при обновлении профиля' });
       } else res.status(DEFAULT_ERROR).send({ message: 'Ошибка сервера' });
     });
+};
+module.exports.login = (req, res, next) => {
+  const { email, password } = req.body;
+  User.findUserByCredentials(email, password)
+    .then((user) => {
+      const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
+        expiresIn: '7d',
+      });
+      res.cookie('jwt', token, {
+        maxAge: 3600000,
+        httpOnly: true,
+      });
+      res.send({ token });
+    })
+    .catch(next);
 };
