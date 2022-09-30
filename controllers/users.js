@@ -1,5 +1,8 @@
+const bcrypt = require('bcryptjs');
 const User = require('../models/user');
 const { INPUT_ERROR, NOT_FOUND_ERROR, DEFAULT_ERROR } = require('../utils/const');
+// const NotFoundError = require('../errors/NotFoundError');
+const UserCreateError = require('../errors/UserCreateError');
 
 module.exports.getUser = (req, res) => {
   User.findById(req.params.userId)
@@ -25,18 +28,37 @@ module.exports.getUsers = (req, res) => {
       res.status(DEFAULT_ERROR).send({ message: 'Ошибка сервера' });
     });
 };
-module.exports.postUsers = (req, res) => {
-  const { name, about, avatar } = req.body;
-  User.create({ name, about, avatar })
-  // вернём записанные в базу данные
-    .then((user) => res.send({ data: user }))
-  // данные не записались, вернём ошибку
+module.exports.postUsers = (req, res, next) => {
+  const {
+    name, about, avatar, email, password,
+  } = req.body;
+  const createUser = (hash) => User.create({
+    name,
+    about,
+    avatar,
+    email,
+    password: hash,
+  });
+  bcrypt
+    .hash(password, 10)
+    .then((hash) => createUser(hash))
+    .then((user) => {
+      const { _id } = user;
+      res.send({
+        _id,
+        name,
+        about,
+        avatar,
+        email,
+      });
+    })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        res.status(INPUT_ERROR).send({ message: 'Ошибка' });
-      } else res.status(DEFAULT_ERROR).send({ message: 'Ошибка сервера' });
+      if (err.code === 11000) {
+        next(new UserCreateError('Пользователь уже существует'));
+      }
     });
 };
+
 module.exports.updateProfile = (req, res) => {
   const { name, about } = req.body;
 
