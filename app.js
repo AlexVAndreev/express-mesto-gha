@@ -50,14 +50,14 @@ app.post(
   }),
   postUsers,
 );
-app.use(auth);
+
 app.use('/users', auth, require('./routes/user'));
 app.use('/cards', auth, require('./routes/card'));
 
 app.use(errors());
 app.use((err, req, res, next) => {
   const { statusCode = 500, message } = err;
-  res.status(statusCode).send({ message: statusCode === 500 ? 'Ошибка сервера' : message });
+  res.status(statusCode).send({ message: statusCode === 401 ? 'Ошибка сервера' : message });
   next();
 });
 

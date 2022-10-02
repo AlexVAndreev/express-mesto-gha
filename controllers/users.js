@@ -117,6 +117,7 @@ module.exports.login = (req, res, next) => {
       next(new UnauthorizedError('Неверно введен пароль или почта'));
     });
 };
+
 module.exports.getMe = (req, res, next) => {
   User.findById(req.user._id)
     .then((user) => {
