@@ -8,21 +8,15 @@ const BadRequest = require('../errors/BadRequest');
 
 const { JWT_SECRET = 'JWT_SECRET' } = process.env;
 
-module.exports.getUser = (req, res) => {
-  User.findById(req.params.userId)
-    .orFail(() => {
-      const error = new Error('Пользователь не найден');
-      error.statusCode = 404;
-      throw error;
+module.exports.getUser = (req, res, next) => {
+  User.findById(req.user._id)
+    .then((user) => {
+      if (!user) {
+        throw new NotFoundError('Пользователь не найден');
+      }
+      res.send({ data: user });
     })
-    .then((user) => res.send({ data: user }))
-    .catch((err) => {
-      if (err.statusCode === 404) {
-        res.status(NOT_FOUND_ERROR).send({ message: err.message });
-      } else if (err.name === 'CastError') {
-        res.status(INPUT_ERROR).send({ message: 'Переданы некорректный _id пользователя' });
-      } else res.status(DEFAULT_ERROR).send({ message: 'Ошибка сервера' });
-    });
+    .catch(next);
 };
 
 module.exports.getUsers = (req, res, next) => {
