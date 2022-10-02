@@ -31,7 +31,6 @@ const userSchema = new mongoose.Schema(
       type: String,
       unique: true,
       required: true,
-      dropDups: true,
       validate: {
         validator: (v) => isEmail(v),
         message: 'Очень неправильная почта',
