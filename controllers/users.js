@@ -31,7 +31,7 @@ module.exports.getUsers = (req, res, next) => {
     });
 };
 
-module.exports.postUsers = (req, res, next) => {
+module.exports.createUser = (req, res, next) => {
   const {
     name, about, avatar, email, password,
   } = req.body;

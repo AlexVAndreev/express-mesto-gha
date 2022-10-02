@@ -15,8 +15,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 const {
-  postUsers,
   login,
+  createUser,
 } = require('./controllers/users');
 
 mongoose.connect('mongodb://127.0.0.1:27017/mestodb', {
@@ -48,7 +48,7 @@ app.post(
       password: Joi.string().required(),
     }),
   }),
-  postUsers,
+  createUser,
 );
 
 app.use('/users', auth, require('./routes/user'));
