@@ -4,7 +4,7 @@ const User = require('../models/user');
 const NotFoundError = require('../errors/NotFoundError');
 const UserCreateError = require('../errors/UserCreateError');
 const BadRequest = require('../errors/BadRequest');
-const { UnauthorizedError } = require('../errors/UnauthorizedError');
+const UnauthorizedError = require('../errors/UnauthorizedError');
 
 module.exports.getUser = (req, res, next) => {
   User.findById(req.params.userId)
@@ -104,7 +104,7 @@ module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
   return User.findUserByCredentials(email, password)
     .then((user) => {
-      const token = jwt.sign({ _id: user._id }, 'secret-key', {
+      const token = jwt.sign({ _id: user._id }, 'secret', {
         expiresIn: '7d',
       });
       res.cookie('jwt', token, {
