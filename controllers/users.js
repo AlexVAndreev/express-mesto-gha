@@ -4,8 +4,7 @@ const User = require('../models/user');
 const NotFoundError = require('../errors/NotFoundError');
 const UserCreateError = require('../errors/UserCreateError');
 const BadRequest = require('../errors/BadRequest');
-
-const { JWT_SECRET = 'JWT_SECRET' } = process.env;
+const { UnauthorizedError } = require('../errors/UnauthorizedError');
 
 module.exports.getUser = (req, res, next) => {
   User.findById(req.params.userId)
@@ -103,9 +102,9 @@ module.exports.updateAvatar = (req, res, next) => {
 
 module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
-  User.findUserByCredentials(email, password)
+  return User.findUserByCredentials(email, password)
     .then((user) => {
-      const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
+      const token = jwt.sign({ _id: user._id }, 'secret-key', {
         expiresIn: '7d',
       });
       res.cookie('jwt', token, {
@@ -114,7 +113,9 @@ module.exports.login = (req, res, next) => {
       });
       res.send({ token });
     })
-    .catch(next);
+    .catch(() => {
+      next(new UnauthorizedError('Неверно введен пароль или почта'));
+    });
 };
 module.exports.getMe = (req, res, next) => {
   User.findById(req.user._id)
