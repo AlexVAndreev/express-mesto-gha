@@ -1,7 +1,9 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-const { celebrate, Joi } = require('celebrate');
+const {
+  celebrate, Joi, errors,
+} = require('celebrate');
 const cookieParser = require('cookie-parser');
 const auth = require('./middlewares/auth');
 
@@ -52,6 +54,7 @@ app.post(
 app.use('/users', auth, require('./routes/user'));
 app.use('/cards', auth, require('./routes/card'));
 
+app.use(errors());
 app.use((err, req, res, next) => {
   const { statusCode = 500, message } = err;
   res.status(statusCode).send({ message: statusCode === 500 ? 'Ошибка сервера' : message });
