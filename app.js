@@ -48,9 +48,15 @@ app.post(
   }),
   postUsers,
 );
-app.use(auth);
-app.use('/users', require('./routes/user'));
-app.use('/cards', require('./routes/card'));
+
+app.use('/users', auth, require('./routes/user'));
+app.use('/cards', auth, require('./routes/card'));
+
+app.use((err, req, res, next) => {
+  const { statusCode = 500, message } = err;
+  res.status(statusCode).send({ message: statusCode === 500 ? 'Ошибка сервера' : message });
+  next();
+});
 
 app.use('*', (req, res) => {
   res.status(404).send({ message: 'Страница не найдена' });
