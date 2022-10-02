@@ -35,31 +35,35 @@ module.exports.postUsers = (req, res, next) => {
   const {
     name, about, avatar, email, password,
   } = req.body;
-  bcrypt.hash(password, 10)
-    .then((hash) => User.create(
-      {
-        name, about, avatar, email, password: hash,
-      },
-    ))
-    .then((user) => res.status(201).send({
-      _id: user._id,
-      email: user.email,
-      name: user.name,
-      about: user.about,
-      avatar: user.avatar,
-    }))
+
+  const createUser = (hash) => User.create({
+    name,
+    about,
+    avatar,
+    email,
+    password: hash,
+  });
+
+  bcrypt
+    .hash(password, 10)
+    .then((hash) => createUser(hash))
+    .then((user) => {
+      const { _id } = user;
+      res.send({
+        _id,
+        name,
+        about,
+        avatar,
+        email,
+      });
+    })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        next(new BadRequest('Некорректные данные'));
-        return;
+      if (err.code === 11000) {
+        next(new UserCreateError('Пользователь уже существует'));
       }
-      if (err.name === 'MongoServerError') {
-        next(new UserCreateError('Пользователь с таким email уже существует'));
-        return;
-      }
-      next(err);
     });
 };
+
 module.exports.updateProfile = (req, res, next) => {
   const { name, about } = req.body;
 
