@@ -50,7 +50,7 @@ app.post(
   }),
   postUsers,
 );
-
+app.use(auth);
 app.use('/users', auth, require('./routes/user'));
 app.use('/cards', auth, require('./routes/card'));
 
