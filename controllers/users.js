@@ -4,6 +4,7 @@ const User = require('../models/user');
 const { INPUT_ERROR, NOT_FOUND_ERROR, DEFAULT_ERROR } = require('../utils/const');
 const NotFoundError = require('../errors/NotFoundError');
 const UserCreateError = require('../errors/UserCreateError');
+const BadRequest = require('../errors/BadRequest');
 
 const { JWT_SECRET = 'JWT_SECRET' } = process.env;
 
@@ -24,41 +25,41 @@ module.exports.getUser = (req, res) => {
     });
 };
 
-module.exports.getUsers = (req, res) => {
+module.exports.getUsers = (req, res, next) => {
   User.find({})
-    .then((users) => res.send(users))
-    .catch(() => {
-      res.status(DEFAULT_ERROR).send({ message: 'Ошибка сервера' });
+    .then((users) => res.send({ data: users }))
+    .catch((err) => {
+      next(err);
     });
 };
+
 module.exports.postUsers = (req, res, next) => {
   const {
     name, about, avatar, email, password,
   } = req.body;
-  const createUser = (hash) => User.create({
-    name,
-    about,
-    avatar,
-    email,
-    password: hash,
-  });
-  bcrypt
-    .hash(password, 10)
-    .then((hash) => createUser(hash))
-    .then((user) => {
-      const { _id } = user;
-      res.send({
-        _id,
-        name,
-        about,
-        avatar,
-        email,
-      });
-    })
+  bcrypt.hash(password, 10)
+    .then((hash) => User.create(
+      {
+        name, about, avatar, email, password: hash,
+      },
+    ))
+    .then((user) => res.status(201).send({
+      _id: user._id,
+      email: user.email,
+      name: user.name,
+      about: user.about,
+      avatar: user.avatar,
+    }))
     .catch((err) => {
-      if (err.code === 11000) {
-        next(new UserCreateError('Пользователь уже существует'));
+      if (err.name === 'ValidationError') {
+        next(new BadRequest('Некорректные данные'));
+        return;
       }
+      if (err.name === 'MongoServerError') {
+        next(new UserCreateError('Пользователь с таким email уже существует'));
+        return;
+      }
+      next(err);
     });
 };
 
