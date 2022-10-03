@@ -133,5 +133,5 @@ module.exports.getMe = (req, res, next) => {
       }
       res.send({ data: user });
     })
-    .catch(next);
+    .catch((err) => next(err));
 };
