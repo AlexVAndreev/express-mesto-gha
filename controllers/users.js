@@ -4,6 +4,7 @@ const User = require('../models/user');
 const NotFoundError = require('../errors/NotFoundError');
 // const UserCreateError = require('../errors/UserCreateError');
 const BadRequest = require('../errors/BadRequest');
+const { UnauthorizedError } = require('../errors/UnauthorizedError');
 // const UnauthorizedError = require('../errors/UnauthorizedError');
 
 module.exports.getUser = (req, res, next) => {
@@ -107,7 +108,7 @@ module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
   return User.findUserByCredentials(email, password)
     .then((user) => {
-      const token = jwt.sign({ _id: user._id }, 'secret', {
+      const token = jwt.sign({ _id: user._id }, 'some-secret-key', {
         expiresIn: '7d',
       });
       res.cookie('jwt', token, {
@@ -116,12 +117,8 @@ module.exports.login = (req, res, next) => {
       });
       res.send({ token });
     })
-    .catch((err) => {
-      // eslint-disable-next-line no-param-reassign
-      err.name = 'UnauthorizedError';
-      // eslint-disable-next-line no-param-reassign
-      err.statusCode = 401;
-      next(err);
+    .catch(() => {
+      next(new UnauthorizedError('Неверно введен пароль или почта'));
     });
 };
 
