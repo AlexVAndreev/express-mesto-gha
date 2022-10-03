@@ -2,7 +2,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const NotFoundError = require('../errors/NotFoundError');
-const UserCreateError = require('../errors/UserCreateError');
+// const UserCreateError = require('../errors/UserCreateError');
 const BadRequest = require('../errors/BadRequest');
 const UnauthorizedError = require('../errors/UnauthorizedError');
 
@@ -54,6 +54,7 @@ module.exports.createUser = (req, res, next) => {
         return;
       }
       if (err.name === 'MongoServerError') {
+        // eslint-disable-next-line no-param-reassign
         err.statusCode = 409;
         next(err);
         return;
