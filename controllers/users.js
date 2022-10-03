@@ -27,6 +27,8 @@ module.exports.getUsers = (req, res, next) => {
   User.find({})
     .then((users) => res.send({ data: users }))
     .catch((err) => {
+      // eslint-disable-next-line no-param-reassign
+      err.statusCode = '401';
       next(err);
     });
 };
