@@ -5,7 +5,6 @@ const NotFoundError = require('../errors/NotFoundError');
 // const UserCreateError = require('../errors/UserCreateError');
 const BadRequest = require('../errors/BadRequest');
 const { UnauthorizedError } = require('../errors/UnauthorizedError');
-// const UnauthorizedError = require('../errors/UnauthorizedError');
 
 module.exports.getUser = (req, res, next) => {
   User.findById(req.params.userId)
