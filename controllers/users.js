@@ -4,7 +4,7 @@ const User = require('../models/user');
 const NotFoundError = require('../errors/NotFoundError');
 // const UserCreateError = require('../errors/UserCreateError');
 const BadRequest = require('../errors/BadRequest');
-const UnauthorizedError = require('../errors/UnauthorizedError');
+// const UnauthorizedError = require('../errors/UnauthorizedError');
 
 module.exports.getUser = (req, res, next) => {
   User.findById(req.params.userId)
@@ -116,8 +116,12 @@ module.exports.login = (req, res, next) => {
       });
       res.send({ token });
     })
-    .catch(() => {
-      next(new UnauthorizedError('Неверно введен пароль или почта'));
+    .catch((err) => {
+      // eslint-disable-next-line no-param-reassign
+      err.name = 'UnauthorizedError';
+      // eslint-disable-next-line no-param-reassign
+      err.statusCode = 401;
+      next(err);
     });
 };
 
