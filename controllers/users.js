@@ -126,12 +126,13 @@ module.exports.login = (req, res, next) => {
 };
 
 module.exports.getMe = (req, res, next) => {
-  User.findById(req.user._id)
+  const { _id } = req.user;
+  User.find({ _id })
     .then((user) => {
       if (!user) {
-        throw new NotFoundError('Пользователь не найден');
+        next(new NotFoundError('Пользователь не найден'));
       }
-      res.send({ data: user });
+      return res.send(...user);
     })
-    .catch((err) => next(err));
+    .catch(next);
 };

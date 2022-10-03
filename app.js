@@ -10,6 +10,7 @@ const {
   login,
   createUser,
 } = require('./controllers/users');
+const NotFoundError = require('./errors/NotFoundError');
 
 const app = express();
 app.use(bodyParser.json());
@@ -43,6 +44,10 @@ app.post('/signup', celebrate({
 
 app.use('/users', auth, require('./routes/user'));
 app.use('/cards', auth, require('./routes/card'));
+
+app.use((req, res, next) => {
+  next(new NotFoundError('Cтраница не найдена'));
+});
 
 app.use(errors());
 app.use((err, req, res, next) => {
