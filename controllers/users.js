@@ -4,7 +4,8 @@ const User = require('../models/user');
 const NotFoundError = require('../errors/NotFoundError');
 // const UserCreateError = require('../errors/UserCreateError');
 const BadRequest = require('../errors/BadRequest');
-const { UnauthorizedError } = require('../errors/UnauthorizedError');
+// const { UnauthorizedError } = require('../errors/UnauthorizedError');
+const { UserCreateError } = require('../errors/UserCreateError');
 
 module.exports.getUser = (req, res, next) => {
   User.findById(req.params.userId)
@@ -27,8 +28,6 @@ module.exports.getUsers = (req, res, next) => {
   User.find({})
     .then((users) => res.send({ data: users }))
     .catch((err) => {
-      // eslint-disable-next-line no-param-reassign
-      err.statusCode = '401';
       next(err);
     });
 };
@@ -56,9 +55,7 @@ module.exports.createUser = (req, res, next) => {
         return;
       }
       if (err.name === 'MongoServerError') {
-        // eslint-disable-next-line no-param-reassign
-        err.statusCode = 409;
-        next(err);
+        next(new UserCreateError('Плохой пользователь!'));
         return;
       }
       next(err);
@@ -118,9 +115,7 @@ module.exports.login = (req, res, next) => {
       });
       res.send({ token });
     })
-    .catch(() => {
-      next(new UnauthorizedError('Неверно введен пароль или почта'));
-    });
+    .catch(next);
 };
 
 module.exports.getMe = (req, res, next) => {
@@ -129,7 +124,9 @@ module.exports.getMe = (req, res, next) => {
     .then((user) => {
       if (!user) {
         next(new NotFoundError('Пользователь не найден'));
+        return;
       }
+      // eslint-disable-next-line consistent-return
       return res.send(...user);
     })
     .catch(next);
