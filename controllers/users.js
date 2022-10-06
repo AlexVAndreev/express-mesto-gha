@@ -54,7 +54,7 @@ module.exports.createUser = (req, res, next) => {
         next(new BadRequest('Некорректные данные'));
         return;
       }
-      if (err.name === 'MongoServerError') {
+      if (err.code === 11000) {
         next(new UserCreateError('Плохой пользователь!'));
         return;
       }
