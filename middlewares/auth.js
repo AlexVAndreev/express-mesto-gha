@@ -1,13 +1,14 @@
 const jwt = require('jsonwebtoken');
 const Unauthorized = require('../errors/UnauthorizedError');
 
-require('dotenv').config();
+// require('dotenv').config();
 
 const { JWT_SECRET = 'JWT_SECRET' } = process.env;
 
 // eslint-disable-next-line consistent-return
 module.exports = (req, res, next) => {
   const token = req.cookies.jwt || req.headers.authorization.replace('Bearer ', '');
+  console.log(`TOKEN${token}`);
   if (!token) {
     next(new Unauthorized('Необходима авторизация'));
     return;
