@@ -90,6 +90,7 @@ app.use('/users', auth, require('./routes/user'));
 app.use('/cards', auth, require('./routes/card'));
 
 app.use(errorLogger);
+
 app.use((req, res, next) => {
   next(new NotFoundError('Cтраница не найдена'));
 });
