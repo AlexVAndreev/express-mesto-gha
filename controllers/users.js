@@ -21,6 +21,7 @@ module.exports.getUser = (req, res, next) => {
       if (err.name === 'CastError') {
         next(new BadRequest('Некорректные данные'));
       } else {
+        console.log(err);
         next(err);
       }
     });
@@ -30,6 +31,7 @@ module.exports.getUsers = (req, res, next) => {
   User.find({})
     .then((users) => res.send({ data: users }))
     .catch((err) => {
+      console.log(err);
       next(err);
     });
 };
