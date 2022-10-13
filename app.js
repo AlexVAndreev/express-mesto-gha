@@ -53,7 +53,9 @@ app.use((req, res, next) => {
 });
 
 mongoose.connect('mongodb://127.0.0.1:27017/mestodb', {
+  useUnifiedTopology: true,
   useNewUrlParser: true,
+  autoIndex: true,
 });
 
 const regExpLink = /(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9]+\.[^\s]{2,}|www\.[a-zA-Z0-9]+\.[^\s]{2,})/;
