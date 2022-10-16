@@ -26,8 +26,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 const allowedCors = [
   'localhost:3000',
   'http://localhost:3000',
-  'https://awa.nomoredomains.icu/',
-  'http://awa.nomoredomains.icu/',
+  'https://awa.nomoredomains.icu',
+  'http://awa.nomoredomains.icu',
 ];
 
 app.use((req, res, next) => {
