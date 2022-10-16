@@ -137,15 +137,12 @@ module.exports.login = (req, res, next) => {
 };
 
 module.exports.getMe = (req, res, next) => {
-  const { _id } = req.user;
-  User.find({ _id })
+  User.findById(req.user._id)
     .then((user) => {
       if (!user) {
-        next(new NotFoundError('Пользователь не найден'));
-        return;
+        throw new UnauthorizedError('Необходима авторизация');
       }
-      // eslint-disable-next-line consistent-return
-      return res.send(...user);
+      res.status(200).send(user);
     })
     .catch(next);
 };
