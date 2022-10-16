@@ -8,7 +8,7 @@ const UnauthorizedError = require('../errors/UnauthorizedError');
 
 require('dotenv').config();
 
-// const { JWT_SECRET = 'JWT_SECRET' } = process.env;
+// const { JWT_SECRET = 'dev-secret' } = process.env;
 
 module.exports.getUser = (req, res, next) => {
   User.findById(req.params.userId)
