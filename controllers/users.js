@@ -41,30 +41,26 @@ module.exports.createUser = (req, res, next) => {
   const {
     name, about, avatar, email, password,
   } = req.body;
-  bcrypt.hash(password, 10)
-    .then((hash) => User.create(
-      {
-        name, about, avatar, email, password: hash,
-      },
-    ))
-    .then((user) => res.status(201).send({
-      _id: user._id,
-      email: user.email,
-      name: user.name,
-      about: user.about,
-      avatar: user.avatar,
-    }))
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        next(new BadRequest('Некорректные данные'));
-        return;
+
+  return User.findOne({ email })
+    .then((mail) => {
+      if (mail) {
+        throw new UserCreateError('Такой пользователь уже существует!');
       }
-      if (err.code === 11000) {
-        next(new UserCreateError('Плохой пользователь!'));
-        return;
-      }
-      next(err);
-    });
+
+      bcrypt.hash(password, 10, (err, hash) => {
+        User.create({
+          name, about, avatar, email, password: hash,
+        })
+          .then((user) => {
+            res.status(200).send({
+              id: user._id,
+              email: user.email,
+            });
+          });
+      });
+    })
+    .catch(next);
 };
 
 module.exports.updateProfile = (req, res, next) => {
